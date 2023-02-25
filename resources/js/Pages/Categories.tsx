@@ -70,7 +70,7 @@ export default function Categories({ categories }: Props) {
       console.error("News item not found");
       return;
     }
-
+    
     router.delete(route("categories.destroy", newsItem.id), {
       onSuccess: () => {
         reset();
@@ -86,7 +86,7 @@ export default function Categories({ categories }: Props) {
       <div className="d-flex justify-content-between mt-4">
         <input type="text" className="form-control w-25 h-50" placeholder="Search" onInput={handleSearch} ref={searchEl} />
         <button className="btn btn-primary" onClick={toggleShow}>
-          Add News Item
+          Add category
         </button>
       </div>
 
@@ -176,4 +176,4 @@ export default function Categories({ categories }: Props) {
 
     </div>
   );
-            } 
+}

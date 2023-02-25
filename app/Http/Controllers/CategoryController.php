@@ -18,17 +18,16 @@ class CategoryController extends Controller
     {
         $search = $request->input('search');
 
-        $categories = NewsItem::query()
+        $categories = Category::query()
             ->when($search, function ($query, $search) {
-                return $query->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('content', 'like', '%' . $search . '%');
-            })->with('category:id,name')->get(['id', 'title', 'content', 'category_id']);
+                return $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('id', 'like', '%' . $search . '%');
+            })->get(['id', 'name']);
 
-        return Inertia::render('News', [
-            'categories' => $categories,
+        return Inertia::render('Categories', [
+            'categories' => $categories
         ]);
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -51,7 +50,6 @@ class CategoryController extends Controller
         $attributes = $request->validate([
             'name' => ['required', 'max:255', 'min:3', 'string'],
         ]);
-
         Category::updateOrCreate(
             ['id' => $request->id],
             $attributes
