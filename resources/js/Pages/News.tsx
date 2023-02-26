@@ -98,7 +98,7 @@ export default function News({ news, categories }: Props) {
       console.error("News item not found");
       return;
     }
-    
+
     router.delete(route("news.destroy", newsItem.id), {
       onSuccess: () => {
         reset();
