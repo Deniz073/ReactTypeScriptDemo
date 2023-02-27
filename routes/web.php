@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +25,7 @@ Route::get('/', function () {
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::post('/news', [NewsController::class, 'store'])->name('news.store');
 Route::delete('/news/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
+
+Route::resource('categories', CategoryController::class)->only([
+    'index', 'store', 'destroy'
+]);
