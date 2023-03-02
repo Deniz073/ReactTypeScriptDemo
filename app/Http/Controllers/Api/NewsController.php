@@ -69,6 +69,10 @@ class NewsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        NewsItem::destroy($id);
+
+        return response()->json([
+            'message' => 'News item deleted'
+        ]);
     }
 }
