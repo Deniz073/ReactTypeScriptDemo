@@ -35,6 +35,7 @@ interface Props {
 export default function News({ news, categories }: Props) {
   const [showModal, setShowModal] = useState<boolean>(false);
   const searchEl = useRef<HTMLInputElement>(null);
+  const categorySearch = useRef<HTMLSelectElement>(null);
   const { data, setData, post, errors, reset } = useForm({
     title: "",
     content: "",
@@ -53,11 +54,10 @@ export default function News({ news, categories }: Props) {
     if (!show) {
       reset();
     }
-
   }
 
   const handleSearch = throttle(() => {
-    router.get(route('news.index'), { search: searchEl.current?.value }, { preserveState: true })
+    router.get(route('news.index'), { search: searchEl.current?.value, category_id: categorySearch.current?.value }, { preserveState: true })
   }, 500);
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -72,7 +72,7 @@ export default function News({ news, categories }: Props) {
 
   function handleEdit(id: number) {
     const newsItem = news.find((item) => item.id === id);
-
+    
     if(!newsItem) {
       console.error("News item not found");
       return;
@@ -110,9 +110,17 @@ export default function News({ news, categories }: Props) {
   return (
     <div>
       <h1>News</h1>
-
+      
       <div className="d-flex justify-content-between mt-4">
         <input type="text" className="form-control w-25 h-50" placeholder="Search" onInput={handleSearch} ref={searchEl} />
+        <select className="form-select w-auto" onChange={handleSearch} ref={categorySearch}>
+                  <option value="">Selecteer een categorie</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
         <button className="btn btn-primary" onClick={toggleShow}>
           Add News Item
         </button>

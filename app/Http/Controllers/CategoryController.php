@@ -7,7 +7,7 @@ use App\Models\Category;
 use App\Models\NewsItem;
 use Illuminate\Http\Request;
 
-class NewsController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,20 +18,16 @@ class NewsController extends Controller
     {
         $search = $request->input('search');
 
-        $news = NewsItem::query()
+        $categories = Category::query()
             ->when($search, function ($query, $search) {
-                return $query->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('content', 'like', '%' . $search . '%');
-            })->when($request->category_id, function ($query, $category_id) {
-                return $query->where('category_id', $category_id);
-            })->with('category:id,name')->get(['id', 'title', 'content', 'category_id']);
+                return $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('id', 'like', '%' . $search . '%');
+            })->get(['id', 'name']);
 
-        return Inertia::render('News', [
-            'news' => $news,
-            'categories' => Category::all(['id', 'name'])
+        return Inertia::render('Categories', [
+            'categories' => $categories
         ]);
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -52,12 +48,9 @@ class NewsController extends Controller
     {
         //dd($request->all());
         $attributes = $request->validate([
-            'title' => ['required', 'max:255', 'min:3', 'string'],
-            'content' => ['required', 'min:3', 'string'],
-            'category_id' => ['required', 'exists:categories,id']
+            'name' => ['required', 'max:255', 'min:3', 'string'],
         ]);
-
-        NewsItem::updateOrCreate(
+        Category::updateOrCreate(
             ['id' => $request->id],
             $attributes
         );
@@ -107,7 +100,7 @@ class NewsController extends Controller
      */
     public function destroy($id)
     {
-        NewsItem::find($id)->delete();
+        Category::find($id)->delete();
 
         return back();
     }
