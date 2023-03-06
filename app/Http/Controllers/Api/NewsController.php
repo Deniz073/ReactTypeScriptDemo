@@ -69,6 +69,7 @@ class NewsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        NewsItem::destroy($id);
+        return http_response_code(200);
     }
 }
