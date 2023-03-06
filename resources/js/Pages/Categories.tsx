@@ -18,29 +18,17 @@ interface Category {
   name: string;
 }
 
-interface NewsItem {
-  id: number;
-  title: string;
-  content: string;
-  category_id: number;
-  category: Category;
-}
-
 interface Props {
-  news: NewsItem[];
   categories: Category[];
 }
 
 
-export default function News({ news, categories }: Props) {
+export default function Categories({ categories }: Props) {
   const [showModal, setShowModal] = useState<boolean>(false);
   const searchEl = useRef<HTMLInputElement>(null);
-  const categorySelect = useRef<HTMLSelectElement>(null);
   const { data, setData, post, errors, reset } = useForm({
-    title: "",
-    content: "",
-    id: 0,
-    category_id: 0,
+    name: "",
+    id: 0
   });
 
   useEffect(() => {
@@ -58,12 +46,12 @@ export default function News({ news, categories }: Props) {
   }
 
   const handleSearch = throttle(() => {
-    router.get(route('news.index'), { search: searchEl.current?.value, filter: categorySelect.current?.value}, { preserveState: true })
+    router.get(route('news.index'), { search: searchEl.current?.value }, { preserveState: true })
   }, 500);
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    post(route("news.store"), {
+    post(route("categories.store"), {
       onSuccess: () => {
         reset();
         toggleShow();
@@ -72,20 +60,18 @@ export default function News({ news, categories }: Props) {
   }
 
   function handleEdit(id: number) {
-    const newsItem = news.find((item) => item.id === id);
+    const category = categories.find((item) => item.id === id);
 
-    if(!newsItem) {
-      console.error("News item not found");
+    if(!category) {
+      console.error("Category not found");
       return;
     }
 
     setData(previousData => {
       return {
         ...previousData,
-        title: newsItem.title,
-        content: newsItem.content,
-        id: newsItem.id,
-        category_id: newsItem.category_id
+        name: category.name,
+        id: category.id,
       }
     })
 
@@ -93,14 +79,14 @@ export default function News({ news, categories }: Props) {
   }
 
   function handleDelete(id: number) {
-    const newsItem = news.find((item) => item.id === id);
+    const category = categories.find((item) => item.id === id);
 
-    if (!newsItem) {
-      console.error("News item not found");
+    if (!category) {
+      console.error("Category not found");
       return;
     }
 
-    router.delete(route("news.destroy", newsItem.id), {
+    router.delete(route("categories.destroy", category.id), {
       onSuccess: () => {
         reset();
         toggleShow();
@@ -110,41 +96,29 @@ export default function News({ news, categories }: Props) {
 
   return (
     <div>
-      <h1>News</h1>
+      <h1>Categories</h1>
 
       <div className="d-flex justify-content-between mt-4">
-        <div className="d-flex justify-content-between w-25">
-            <input type="text" className="form-control w-50 mr-2" placeholder="Search" onInput={handleSearch} ref={searchEl} />
-            <select className="form-select w-50" onChange={handleSearch} ref={categorySelect}>
-                  <option value="">Alles</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-        </div>
+        <input type="text" className="form-control w-25 h-50" placeholder="Search" onInput={handleSearch} ref={searchEl} />
         <button className="btn btn-primary" onClick={toggleShow}>
-          Add News Item
+          Add Category
         </button>
       </div>
 
       <table className="table mt-4">
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Content</th>
-            <th>Category</th>
+            <th>Id</th>
+            <th>Name</th>
             <th>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {news.map((item) => (
+          {categories.map((item) => (
             <tr key={item.id}>
-              <td>{item.title}</td>
-              <td>{item.content}</td>
-              <td>{item.category?.name}</td>
+              <td>{item.id}</td>
+              <td>{item.name}</td>
               <td>
                 <button
                   onClick={() => handleEdit(item.id)}
@@ -157,7 +131,6 @@ export default function News({ news, categories }: Props) {
           ))}
         </tbody>
       </table>
-
       <MDBModal
         staticBackdrop
         tabIndex="-1"
@@ -179,42 +152,15 @@ export default function News({ news, categories }: Props) {
                 <input
                   type="text"
                   className="form-control"
-                  value={data.title}
+                  value={data.name}
                   onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setData("title", e.target.value)
+                    setData("name", e.target.value)
                   }
                   placeholder="Titel"
                 />
-                {errors.title && (
+                {errors.name && (
                   <p className="text-danger">
-                    {errors.title}
-                  </p>
-                )}
-                <select className="form-select mt-2" value={data.category_id} onChange={e => setData("category_id", parseInt(e.target.value))}>
-                  <option value="">Selecteer een categorie</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.category_id && (
-                  <p className="text-danger">
-                    {errors.category_id}
-                  </p>
-                )}
-                <textarea
-                  className="form-control mt-2"
-                  rows={10}
-                  value={data.content}
-                  onInput={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setData("content", e.target.value)
-                  }
-                  placeholder="Content"
-                />
-                {errors.content && (
-                  <p className="text-danger">
-                    {errors.content}
+                    {errors.name}
                   </p>
                 )}
               </MDBModalBody>

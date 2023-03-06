@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Category;
-use App\Models\NewsItem;
 use Illuminate\Http\Request;
 
-class NewsController extends Controller
+class CategoriesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,24 +16,11 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $filter = $request->input('filter');
 
-        $newsQuery = NewsItem::query()
-            ->when($search, function ($query, $search) {
-                return $query->where(function($query) use($search) {
-                    $query->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('content', 'like', '%' . $search . '%');
-                });
-            })
-            ->when($filter, function ($query, $filter) {
-                return $query->where('category_id', $filter);})
-            ->with('category:id,name');
+        $categories = Category::query()->where('name', 'like', '%' . $search . '%')->get(['id', 'name']);
 
-        $news = $newsQuery->get(['id', 'title', 'content', 'category_id']);
-
-        return Inertia::render('News', [
-            'news' => $news,
-            'categories' => Category::all(['id', 'name'])
+        return Inertia::render('Categories', [
+            'categories' => $categories
         ]);
     }
 
@@ -58,12 +44,10 @@ class NewsController extends Controller
     {
         //dd($request->all());
         $attributes = $request->validate([
-            'title' => ['required', 'max:255', 'min:3', 'string'],
-            'content' => ['required', 'min:3', 'string'],
-            'category_id' => ['required', 'exists:categories,id']
+            'name' => ['required', 'max:255', 'min:3', 'string'],
         ]);
 
-        NewsItem::updateOrCreate(
+        Category::updateOrCreate(
             ['id' => $request->id],
             $attributes
         );
@@ -113,7 +97,7 @@ class NewsController extends Controller
      */
     public function destroy($id)
     {
-        NewsItem::find($id)->delete();
+        Category::find($id)->delete();
 
         return back();
     }
