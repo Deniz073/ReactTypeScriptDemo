@@ -22,6 +22,8 @@ class NewsController extends Controller
             ->when($search, function ($query, $search) {
                 return $query->where('title', 'like', '%' . $search . '%')
                     ->orWhere('content', 'like', '%' . $search . '%');
+            })->when($request->input("categoryId"), function($query, $categoryId){
+                return $query->where("category_id", $categoryId);
             })->with('category:id,name')->get(['id', 'title', 'content', 'category_id']);
 
         return Inertia::render('News', [
